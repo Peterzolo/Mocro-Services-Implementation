@@ -1,26 +1,25 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"; 
 import {
-  deletePost,
-  fetchAllPosts,
-  findPostById,
-  findPostOwnerById,
-  updatePost,
+  deleteProduct,
+  fetchAllProducts,
+  findProductById,
+  findProductOwnerById,
+  updateProduct,
 } from "./product.dao.js";
 import ApiError from "../../error/ApiError.js";
 
-import { createPost } from "./post.service.js";
+import { createProduct } from "./product.service.js";
 import cloudinary from "../../utils/cloudinary.js";
 import { findUserById } from "../user/user.dao.js";
 import User from "../user/user.model.js";
 
-export const sendPost = async (req, res) => {
+export const sendProduct = async (req, res) => {
   try {
     const {
       description,
-      likes,
-      user,
+      price,
+      name,
       image,
-      createdAt,
       status,
     } = req.body;
     const userId = req.user;
@@ -28,19 +27,17 @@ export const sendPost = async (req, res) => {
     // if (user === findUser._id.toString() || findUser.isAdmin === true) {
     // const result = await cloudinary.uploader.upload(req.file.path);
     const dataObject = {
-      image,
       description,
-      likes,
-      user,
-      createdAt,
+      price,
+      name,
+      image,
       status,
-      createdAt: new Date().toString(),
     };
-    const postData = await createPost(dataObject);
+    const productData = await createProduct(dataObject);
     res.status(200).json({
       success: true,
-      message: "Post successfully created",
-      result: postData,
+      message: "product successfully created",
+      result: productData,
     });
     // } else {
     //   res.send({ message: "You are not authorized" });
@@ -50,82 +47,81 @@ export const sendPost = async (req, res) => {
   }
 };
 
-export const getAllPosts = async (req, res) => {
+export const getAllProducts = async (req, res) => {
   try {
-    const allPosts = await fetchAllPosts();
-    if (!allPosts.length) {
-      throw ApiError.notFound("No post Found");
+    const allProducts = await fetchAllProducts();
+    if (!allProducts.length) {
+      throw ApiError.notFound("No product Found");
     }
     res.status(200).json({
-      postCount: allPosts.length,
+      productCount: allProducts.length,
       success: true,
-      message: "Successfully fetched all posts",
-      result: allPosts,
+      message: "Successfully fetched all products",
+      result: allProducts,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const getOnePost = async (req, res) => {
+export const getOneProduct = async (req, res) => {
   try {
     const id = req.params.id;
-    const findPost = await findPostById(id);
-    if (findPost) {
-      const post = findPost;
+    const findProduct = await findProductById(id);
+    if (findProduct) {
+      const product = findProduct;
       res.status(200).send({
         Success: true,
-        message: "post successfully fetched",
-        result: post,
+        message: "product successfully fetched",
+        result: product,
       });
     } else {
-      res.status(401).send({ message: "Post Not Found" });
+      res.status(401).send({ message: "product Not Found" });
     }
   } catch (error) {
     res.status(400).send({ message: "Error has occured" });
   }
 };
 
-export const updateAPost = async (req, res) => {
+export const updateAProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const user = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ message: "Invalid Post  id" });
+      return res.status(404).json({ message: "Invalid product  id" });
     }
 
-    const post = await findPostById(id);
+    const product = await findProductById(id);
 
-    if (post.user._id.toString() === user._id || user.isAdmin === true) {
-      if (post.status === "inactive") {
-        throw ApiError.notFound({ message: "Post not found" });
+    if (product.user._id.toString() === user._id || user.isAdmin === true) {
+      if (product.status === "inactive") {
+        throw ApiError.notFound({ message: "product not found" });
       }
 
       // Delete image from cloudinary
-      await cloudinary.uploader.destroy(post.cloudinary_id);
+      await cloudinary.uploader.destroy(product.cloudinary_id);
       // Upload image to cloudinary
       let result;
       if (req.file) {
         result = await cloudinary.uploader.upload(req.file.path);
       }
       const data = {
-        title: req.body.title || post.title,
-        description: req.body.description || post.description,
-        title: req.body.title || post.title,
-        image: result?.secure_url || post.image,
-        // user: post.user,
-        cloudinary_id: result?.public_id || post.cloudinary_id,
+        price: req.body.price || product.price,
+        description: req.body.description || product.description,
+        name: req.body.name || product.name,
+        image: result?.secure_url || product.image,
+        cloudinary_id: result?.public_id || product.cloudinary_id,
       };
 
-      let editedPost = await updatePost(id, data);
+      let editedProduct = await updateProduct(id, data);
 
-      if (!editedPost) {
-        throw ApiError.notFound({ message: "post not available" });
+      if (!editedProduct) {
+        throw ApiError.notFound({ message: "product not available" });
       }
       return res.status(200).send({
-        message: "post updated successfully",
-        content: editedPost,
+        message: "product updated successfully",
+        content: editedProduct,
         success: true,
       });
     } else {
@@ -136,7 +132,7 @@ export const updateAPost = async (req, res) => {
   }
 };
 
-export const removePost = async (req, res) => {
+export const removeProduct = async (req, res) => {
   try {
     const id = req.params.id;
     const userId = req.user;
@@ -144,28 +140,27 @@ export const removePost = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ message: "User doesn't exist" });
     }
-    const findPost = await findPostById(id);
+    const findProduct = await findProductById(id);
 
-    console.log("UserId", typeof userId._id);
-    console.log("Find Post", typeof findPost.user._id);
 
-    if (findPost.user._id.toString() === userId._id) {
-      if (findPost.status === "inactive") {
-        throw ApiError.notFound({ message: "post not available" });
+
+    if (findProduct.user._id.toString() === userId._id) {
+      if (findProduct.status === "inactive") {
+        throw ApiError.notFound({ message: "product not available" });
       }
-      await cloudinary.uploader.destroy(findPost.cloudinary_id);
+      await cloudinary.uploader.destroy(findProduct.cloudinary_id);
 
       const query = id;
 
-      let deletedPost = await deletePost(query);
+      let deletedProduct = await deleteProduct(query);
 
-      if (!deletedPost) {
-        throw ApiError.notFound({ message: "Could not delete post" });
+      if (!deletedProduct) {
+        throw ApiError.notFound({ message: "Could not delete product" });
       }
       return res.status(200).send({
         success: true,
-        message: "post deleted successfully",
-        result: deletedPost,
+        message: "product deleted successfully",
+        result: deletedProduct,
       });
     } else {
       res.status(403).send({ message: "Not allowed" });
@@ -175,77 +170,77 @@ export const removePost = async (req, res) => {
   }
 };
 
-export const findPostByVendor = async (req, res) => {
+export const findProductByVendor = async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ message: "User doesn't exist" });
     }
-    const userPost = await findPostOwnerById(id);
-    if (userPost.length < 1) {
-      throw ApiError.notFound({ message: "post could not be found" });
+    const userProduct = await findProductOwnerById(id);
+    if (userProduct.length < 1) {
+      throw ApiError.notFound({ message: "product could not be found" });
     }
     res.status(200).json({
       Success: true,
-      Message: "post successfully fetched",
-      data: userPost,
+      Message: "product successfully fetched",
+      data: userProduct,
     });
   } catch (error) {
     res.status(500).json(error.message);
   }
 };
 
-// export const searchpostByTitle = async (req, res) => {
+// export const searchproductByTitle = async (req, res) => {
 //   try {
 //     const { searchQuery } = req.query;
 //     const title = new RegExp(searchQuery, "i");
-//     const posts = await fetchAllposts({ title });
-//     res.status(200).json(posts);
+//     const products = await fetchAllproducts({ title });
+//     res.status(200).json(products);
 //   } catch (error) {
 //     res.status(500).json(error.message);
 //   }
 // };
 
-export const searchPostByTitle = async (req, res) => {
+export const searchProductByTitle = async (req, res) => {
   const { searchQuery } = req.query;
   try {
     const title = new RegExp(searchQuery, "i");
-    const posts = await getAllPosts({ title });
-    res.json(posts);
+    const products = await getAllProducts({ title });
+    res.json(products);
   } catch (error) {
     res.status(404).json({ message: "Something went wrong" });
   }
 };
 
-// export const getPostsByTag = async (req, res) => {
+// export const getproductsByTag = async (req, res) => {
 //   const { tag } = req.params;
 //   try {
-//     const posts = await getAllPosts({ tags: { $in: tag } });
+//     const products = await getAllproducts({ tags: { $in: tag } });
 //     res.json({
 //       success: true,
 //       message: "Successful",
-//       data: posts,
+//       data: products,
 //     });
 //   } catch (error) {
 //     res.status(404).json({ message: "Something went wrong" });
 //   }
 // };
 
-// export const getRelatedPosts = async (req, res) => {
+// export const getRelatedproducts = async (req, res) => {
 //   const tag = req.body;
 //   try {
-//     const posts = await getAllPosts({ tags: { $in: tag } });
+//     const products = await getAllproducts({ tags: { $in: tag } });
 //     res.json({
 //       success: true,
 //       message: "Successful",
-//       data: posts,
+//       data: products,
 //     });
 //   } catch (error) {
 //     res.status(404).json({ message: "Something went wrong" });
 //   }
 // };
 
-// export const getPostLikes = async (req, res) => {
+// export const getproductLikes = async (req, res) => {
 //   const { id } = req.params;
 //   try {
 //     if (!req.userId) {
@@ -253,90 +248,29 @@ export const searchPostByTitle = async (req, res) => {
 //     }
 
 //     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return res.status(404).json({ message: `No post exist with id: ${id}` });
+//       return res.status(404).json({ message: `No product exist with id: ${id}` });
 //     }
 
-//     const post = await findPostById(id);
+//     const product = await findproductById(id);
 
-//     const index = post.likes.findIndex((id) => id === String(req.userId));
+//     const index = product.likes.findIndex((id) => id === String(req.userId));
 
 //     if (index === -1) {
-//       post.likes.push(req.userId);
+//       product.likes.push(req.userId);
 //     } else {
-//       post.likes = post.likes.filter((id) => id !== String(req.userId));
+//       product.likes = product.likes.filter((id) => id !== String(req.userId));
 //     }
 
-//     const updatedpost = await updatePost(id, post, {
+//     const updatedproduct = await updateproduct(id, product, {
 //       new: true,
 //     });
 
 //     res.status(200).json({
 //       success: true,
 //       message: "Successfully liked",
-//       data: updatedpost,
+//       data: updatedproduct,
 //     });
 //   } catch (error) {
 //     res.status(404).json({ message: error.message });
 //   }
 // };
-
-export const likePost = async (req, res) => {
-  const id = req.params.id;
-  const { userId } = req.body;
-
-  try {
-    const post = await findPostById(id);
-    if (post.likes.includes(userId)) {
-      await post.updateOne({ $pull: { likes: userId } });
-      res.status(200).json({ message: "Post disliked" });
-    } else {
-      await post.updateOne({ $push: { likes: userId } });
-      res.status(200).json({ message: "Post liked" });
-    }
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
-
-export const getTimelinePosts = async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const currentUserPosts = await fetchAllPosts({ user: userId });
-    console.log("CURRENT POST", currentUserPosts);
-
-    const followingPosts = await User.aggregate([
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(userId),
-        },
-      },
-      {
-        $lookup: {
-          from: "posts",
-          localField: "following",
-          foreignField: "userId",
-          as: "followingPosts",
-        },
-      },
-      {
-        $project: {
-          followingPosts: 1,
-          _id: 0,
-        },
-      },
-    ]);
-
-    const timeLinePosts = currentUserPosts
-      .concat(...followingPosts[0].followingPosts)
-      .sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      });
-    res.status(200).json({
-      success: true,
-      message: "Posts successfully fetched",
-      result: timeLinePosts,
-    });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};

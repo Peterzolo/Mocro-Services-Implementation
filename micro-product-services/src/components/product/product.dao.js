@@ -8,12 +8,12 @@ export const saveProductPayload = async (args) => {
 export const fetchAllProducts = async () => {
   const product = await Product.find({ status: "active" });
 
-  return PORT;
+  return product;
 };
 
 export const findProductById = async (id) => {
-  const Product = await Product.findById({ _id: id, status: "active" });
-  return Product;
+  const product = await Product.findById({ _id: id, status: "active" });
+  return product;
 };
 
 // export const findOneProduct = async(id) =>{
@@ -22,30 +22,30 @@ export const findProductById = async (id) => {
 // }
 
 export const findProductByName = async (query) => {
-  const Product = await Product.findOne(query);
-  return Product;
+  const product = await Product.findOne(query);
+  return product;
 };
 
-export const updateProduct = async (id, ProductObj) => {
-  const Product = await Product.findByIdAndUpdate(
+export const updateProduct = async (id, productObj) => {
+  const product = await Product.findByIdAndUpdate(
     { _id: id },
-    { $set: ProductObj },
+    { $set: productObj },
     { new: true }
   );
   return Product;
 };
 
 export const deleteProduct = async (id, userId) => {
-  const Product = await Product.findByIdAndUpdate(
+  const product = await Product.findByIdAndUpdate(
     { _id: id, user: userId },
     { $set: { status: "inactive" } },
     { new: true }
   );
-  return Product;
+  return product;
 };
 
 export const findProductOwnerById = async (id) => {
-  const Product = await Product.find({ status: "active", vendor: id });
+  const product = await Product.find({ status: "active"});
 
-  return Product;
+  return product;
 };

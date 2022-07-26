@@ -7,6 +7,10 @@ const ProductSchema = mongoose.Schema(
       type: String,
     },
 
+    name: {
+      type: String,
+      required: true,
+    },
     description: {
       type: String,
       required: true,
@@ -15,15 +19,14 @@ const ProductSchema = mongoose.Schema(
     image: {
       type: String,
     },
+    price: {
+      type: Number,
+    },
 
     status: {
       type: String,
       enum: ["active", "inactive"],
       default: "active",
-    },
-    createdAt: {
-      type: Date,
-      default: new Date(),
     },
   },
   { timestamps: true }
