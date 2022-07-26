@@ -10,15 +10,6 @@ export const createUser = async ({
   email,
   username,
   password,
-  profilePicture,
-  coverPicture,
-  about,
-  livesIn,
-  worksAt,
-  relationship,
-  country,
-  followers,
-  following,
   isAdmin,
   status,
 }) => {
@@ -32,15 +23,6 @@ export const createUser = async ({
     email,
     username,
     password,
-    profilePicture,
-    coverPicture,
-    about,
-    livesIn,
-    worksAt,
-    relationship,
-    country,
-    followers,
-    following,
     isAdmin,
     status,
   };
@@ -53,6 +35,7 @@ export const createUser = async ({
     username: savedUser.username,
     email: savedUser.email,
     _id: savedUser._id,
+    isAdmin: savedUser.isAdmin,
   };
 
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -60,22 +43,14 @@ export const createUser = async ({
   });
 
   return {
+    firstName: savedUser.firstName,
+    lastName: savedUser.lastName,
     email: savedUser.email,
     username: savedUser.username,
-    profilePicture: savedUser.profilePicture,
-    coverPicture: savedUser.coverPicture,
-    about: savedUser.about,
-    livesIn: savedUser.livesIn,
-    worksAt: savedUser.worksAt,
-    relationship: savedUser.relationship,
-    country: savedUser.country,
-    followers: savedUser.followers,
-    following: savedUser.following,
-    isAdmin: savedUser.isAdmin,
     isAdmin: savedUser.isAdmin,
     _id: savedUser._id,
     token,
-    status,
+    status: savedUser.status,
   };
 };
 
