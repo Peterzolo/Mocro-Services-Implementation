@@ -8,7 +8,6 @@ export const createUser = async ({
   firstName,
   lastName,
   email,
-  username,
   password,
   isAdmin,
   status,
@@ -21,7 +20,6 @@ export const createUser = async ({
     firstName,
     lastName,
     email,
-    username,
     password,
     isAdmin,
     status,
@@ -32,7 +30,6 @@ export const createUser = async ({
   const payload = {
     firstName: savedUser.firstName,
     lastName: savedUser.lastName,
-    username: savedUser.username,
     email: savedUser.email,
     _id: savedUser._id,
     isAdmin: savedUser.isAdmin,
@@ -46,7 +43,6 @@ export const createUser = async ({
     firstName: savedUser.firstName,
     lastName: savedUser.lastName,
     email: savedUser.email,
-    username: savedUser.username,
     isAdmin: savedUser.isAdmin,
     _id: savedUser._id,
     token,
@@ -73,7 +69,6 @@ export const signIn = async (email, password) => {
   const payload = {
     _id: user._id,
     email: user.email,
-    username: user.username,
     isAdmin: user.isAdmin,
   };
 
@@ -83,7 +78,6 @@ export const signIn = async (email, password) => {
 
   return {
     email: user.email,
-    username: user.username,
     _id: user._id,
     isAdmin: user.isAdmin,
     token,

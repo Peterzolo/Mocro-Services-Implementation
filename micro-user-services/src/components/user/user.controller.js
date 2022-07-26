@@ -5,35 +5,17 @@ import {
   removeUser,
 } from "./user.dao.js";
 import { createUser, signIn } from "./user.service.js";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import cloudinary from "../../utils/cloudinary.js";
 import ApiError from "../../error/ApiError.js";
 
 export const register = async (req, res) => {
   const body = req.body;
   try {
-    // const result = await cloudinary.uploader.upload(req.file.path);
-
-    // if(profilePicture){
-    //  return profilePicture = result.secure_url
-    // }
-
     const userObject = {
       firstName: body.firstName,
       lastName: body.lastName,
-      username: body.username,
       email: body.email,
       password: body.password,
-      // cloudinary_id: result.public_id,
-      // coverPicture: result.secure_url,
-      about: body.about,
-      livesIn: body.livesIn,
-      worksAt: body.worksAt,
-      relationship: body.relationship,
-      country: body.country,
-      followers: body.followers,
-      following: body.following,
       isAdmin: body.isAdmin,
       status: body.status,
     };
@@ -140,55 +122,6 @@ export const deleteUser = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send(error.message);
-  }
-};
-
-export const postFollowUser = async (req, res) => {
-  const id = req.params.id;
-  const _id = req.body._id;
-  console.log(id, _id);
-  if (_id == id) {
-    res.status(403).json({ message: "You cannot follow yourself" });
-  } else {
-    try {
-      const followUser = await findUserById(id);
-      const followingUser = await findUserById(_id);
-
-      if (!followUser.followers.includes(_id)) {
-        await followUser.updateOne({ $push: { followers: _id } });
-        await followingUser.updateOne({ $push: { following: id } });
-        res.status(200).json("User followed!");
-      } else {
-        res.status(403).json("you are already following this user");
-      }
-    } catch (error) {
-      console.log(error);
-      res.status(500).json(error);
-    }
-  }
-};
-
-export const unfollowUser = async (req, res) => {
-  const id = req.params.id;
-  const _id = req.body._id;
-
-  if (_id === id) {
-    res.status(403).json({ message: "Action Forbidden" });
-  } else {
-    try {
-      const unFollowUser = await findUserById(id);
-      const unFollowingUser = await findUserById(_id);
-
-      if (unFollowUser.followers.includes(_id)) {
-        await unFollowUser.updateOne({ $pull: { followers: _id } });
-        await unFollowingUser.updateOne({ $pull: { following: id } });
-        res.status(200).json({message : "Unfollowed Successfully!"});
-      } else {
-        res.status(403).json({message : "You are not following this User"});
-      }
-    } catch (error) {
-      res.status(500).json(error);
-    }
   }
 };
 

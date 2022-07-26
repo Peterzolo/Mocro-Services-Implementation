@@ -1,25 +1,19 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
-const PostSchema = mongoose.Schema(
+const ProductSchema = mongoose.Schema(
   {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "user",
-      required: true,
-    },
-
     cloudinary_id: {
       type: String,
     },
-    likes: [],
+
     description: {
       type: String,
       required: true,
     },
 
     image: {
-    type: String
+      type: String,
     },
 
     status: {
@@ -35,6 +29,6 @@ const PostSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-const Post = mongoose.model("post", PostSchema);
+const Product = mongoose.model("product", ProductSchema);
 
-export default Post;
+export default Product;

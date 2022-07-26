@@ -5,7 +5,7 @@ import {
   findPostById,
   findPostOwnerById,
   updatePost,
-} from "./post.dao.js";
+} from "./product.dao.js";
 import ApiError from "../../error/ApiError.js";
 
 import { createPost } from "./post.service.js";

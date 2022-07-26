@@ -5,8 +5,7 @@ import morgan from "morgan";
 
 import { componentModule } from "./components/index.js";
 
-
-// app.use(express.static('public')); 
+// app.use(express.static('public'));
 // app.use('/images', express.static('images'));
 
 app.use(morgan("dev"));
@@ -16,7 +15,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use("/api/user", componentModule.userModule.routes);
-app.use("/api/post", componentModule.postModule.routes);
-app.use("/api/upload", componentModule.uploadModule.routes);
 
 export default app;

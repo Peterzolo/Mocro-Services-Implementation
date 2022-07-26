@@ -14,7 +14,7 @@ import {
   searchPostByTitle,
   sendPost,
   updateAPost,
-} from "./post.controller.js";
+} from "./product.controller.js";
 import { authorizedAndAdmin, protect } from "../../middleware/auth2.js";
 import { newUpload } from "../../utils/multer.js";
 import { upload } from "../uploadImage/multer-config/index.js";

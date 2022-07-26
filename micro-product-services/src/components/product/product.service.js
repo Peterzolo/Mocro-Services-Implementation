@@ -1,11 +1,11 @@
-import { findPostById, findPostByName, savePostPayload } from "./post.dao.js";
+import { findPostById, findPostByName, savePostPayload } from "./product.dao.js";
 import ApiError from "../../error/ApiError.js";
 
 export const createPost = async ({
   description,
-  user,
+
   image,
-  likes,
+
   cloudinary_id,
   createdAt,
   status,
