@@ -10,10 +10,10 @@ import ApiError from "../../error/ApiError.js";
 
 import { createProduct } from "./product.service.js";
 import cloudinary from "../../utils/cloudinary.js";
-import { findUserById } from "../user/user.dao.js";
-import User from "../user/user.model.js";
 
-export const sendProduct = async (req, res) => {
+
+
+export const addProduct = async (req, res) => {
   try {
     const {
       description,

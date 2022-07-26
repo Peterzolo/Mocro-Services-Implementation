@@ -1,7 +1,7 @@
 import {
   findProductById,
   findProductByName,
-  saveproductPayload,
+  saveProductPayload,
 } from "./product.dao.js";
 import ApiError from "../../error/ApiError.js";
 
@@ -31,7 +31,7 @@ export const createProduct = async ({
   //   });
   // }
 
-  const product = await saveproductPayload(productObject);
+  const product = await saveProductPayload(productObject);
   return {
 
     image: product.image,

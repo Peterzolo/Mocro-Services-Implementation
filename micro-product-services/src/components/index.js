@@ -1,16 +1,12 @@
-import userRoutes from "./user/user.route.js";
-import postRoutes from "./post/post.routes.js";
-import uploadRoutes from "./uploadImage/routes.js";
+
+import productRoute from "./product/product.routes.js";
+
 
 export const componentModule = {
-  userModule: {
-    routes: userRoutes,
+
+  productModule: {
+    routes: productRoute,
   },
-  postModule: {
-    routes: postRoutes,
-  },
-  uploadModule: {
-    routes: uploadRoutes,
-  },
+
 };
 

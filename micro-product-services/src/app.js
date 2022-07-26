@@ -15,8 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-app.use("/api/user", componentModule.userModule.routes);
-app.use("/api/post", componentModule.postModule.routes);
-app.use("/api/upload", componentModule.uploadModule.routes);
+
+app.use("/api/product", componentModule.productModule.routes);
+
 
 export default app;
