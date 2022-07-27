@@ -8,6 +8,7 @@ import {
   addProduct,
   getAllProducts,
   getOneProduct,
+  productPurchase,
   removeProduct,
   searchProductByTitle,
   updateAProduct,
@@ -16,6 +17,7 @@ import {
 
 
 productRouter.post("/create",protectedAuth,addProduct);
+productRouter.post("/buy",protectedAuth,productPurchase);
 productRouter.get("/fetch-all", getAllProducts);
 productRouter.get("/fetch-one/:id", getOneProduct);
 productRouter.put(

@@ -7,10 +7,15 @@ import {
   updateProduct,
 } from "./product.dao.js";
 import ApiError from "../../error/ApiError.js";
-
 import { createProduct } from "./product.service.js";
 import cloudinary from "../../utils/cloudinary.js";
-import Product from "./product.model.js";
+import Product from "./product.model.js";         
+import amqp from "amqplib";
+
+
+let connection;
+let channel;
+
 
 
 export const addProduct = async (req, res) => {
@@ -18,7 +23,6 @@ export const addProduct = async (req, res) => {
     const { description, price, name, image, status } = req.body;
     const userId = req.user;
     const email = userId.email;
-    console.log('USER ID',email)
     const dataObject = {
       description,
       price,
@@ -37,18 +41,27 @@ export const addProduct = async (req, res) => {
   }
 };
 
+
+async function connect() {
+  const amqpServer = "amqp://localhost:5672";
+  connection = await amqp.connect(amqpServer);
+  channel = await connection.createChannel();
+  await channel.assertQueue("PRODUCT");
+}
+connect();
+
 export const productPurchase = async (req, res) => {
   const { ids } = req.body;
   const userId = req.user;
-  console.log('USER ID',userId)
-  const findUser = userId;
+  const email = userId.email;
   const products = await Product.find({ _id: { $in: ids } });
   channel.sendToQueue(
     "ORDER",
     Buffer.from(
       JSON.stringify({
         products,
-        userEmail: req.user.email,
+        // userEmail: req.user.email,
+        userEmail: email,
       })
     )
   );
