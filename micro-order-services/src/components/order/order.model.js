@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
-const PostSchema = mongoose.Schema(
+const OrderSchema = mongoose.Schema(
   {
     products: [
       {
@@ -11,11 +11,7 @@ const PostSchema = mongoose.Schema(
       },
     ],
 
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "user",
-      required: true,
-    },
+    user: String,
 
     total_price: {
       type: Number,
@@ -30,6 +26,6 @@ const PostSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-const Post = mongoose.model("post", PostSchema);
+const Order = mongoose.model("order", OrderSchema);
 
-export default Post;
+export default Order;

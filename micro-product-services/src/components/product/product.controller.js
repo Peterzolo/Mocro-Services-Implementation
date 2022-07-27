@@ -9,14 +9,12 @@ import {
 import ApiError from "../../error/ApiError.js";
 import { createProduct } from "./product.service.js";
 import cloudinary from "../../utils/cloudinary.js";
-import Product from "./product.model.js";         
+import Product from "./product.model.js";
 import amqp from "amqplib";
-
 
 let connection;
 let channel;
-
-
+let order;
 
 export const addProduct = async (req, res) => {
   try {
@@ -40,7 +38,6 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 async function connect() {
   const amqpServer = "amqp://localhost:5672";
@@ -67,8 +64,13 @@ export const productPurchase = async (req, res) => {
   );
   channel.consume("PRODUCT", (data) => {
     order = JSON.parse(data.content);
+    console.log('DATA',data)
   });
-  return res.json(order);
+  return res.json({
+    success: true,
+    message: "Order successfully created",
+    result: order,
+  });
 };
 
 export const getAllProducts = async (req, res) => {
