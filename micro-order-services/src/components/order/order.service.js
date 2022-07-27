@@ -1,42 +1,36 @@
-import { findPostById, findPostByName, savePostPayload } from "./order.dao.js";
+
+
+
+import { findOrderById, findOrderByName, saveOrderPayload } from "./order.dao.js";
 import ApiError from "../../error/ApiError.js";
 
-export const createPost = async ({
-  description,
+export const createOrder = async ({
+  products,
   user,
-  image,
-  likes,
-  cloudinary_id,
-  createdAt,
+  total_price,
   status,
 }) => {
-  const postObject = {
-    description,
+  const orderObject = {
+    products,
     user,
-    image,
-    likes,
-    cloudinary_id,
-    createdAt,
+    total_price,
     status,
   };
 
-  // const postExists = await findPostByName({ title });
+  // const orderExists = await findorderByName({ title });
 
-  // if (postExists) {
+  // if (orderExists) {
   //   throw ApiError.alreadyExists({
-  //     message: "Post with this title has already been created",
+  //     message: "order with this title has already been created",
   //   });
   // }
 
-  const post = await savePostPayload(postObject);
+  const order = await saveOrderPayload(orderObject);
   return {
-    createdAt: new Date().toISOString(),
-    image: post.image,
-    user: post.user,
-    cloudinary_id: post.cloudinary_id,
-    description: post.description,
-    likes: post.likes,
-    status: post.status,
-    _id: post._id,
+    products: order.products,
+    user: order.user,
+    description: order.description,
+    status: order.status,
   };
 };
+

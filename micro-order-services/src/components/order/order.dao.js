@@ -1,58 +1,58 @@
-import Post from "./order.model.js";
+import Order from "./order.model.js";
 
-export const savePostPayload = async (args) => {
-  const payload = await Post.create(args);
+export const saveOrderPayload = async (args) => {
+  const payload = await Order.create(args);
   return payload;
 };
 
-export const fetchAllPosts = async () => {
-  const post = await Post.find({ status: "active" }).populate(
+export const fetchAllOrders = async () => {
+  const order = await Order.find({ status: "active" }).populate(
+    "user product",
+    "-password"
+  );
+  return order;
+};
+
+export const findOrderById = async (id) => {
+  const order = await Order.findById({ _id: id, status: "active" }).populate(
     "user",
     "-password"
   );
-  return post;
+  return order;
 };
 
-export const findPostById = async (id) => {
-  const post = await Post.findById({ _id: id, status: "active" }).populate(
-    "user",
-    "-password"
-  );
-  return post;
-};
-
-// export const findOnePost = async(id) =>{
-//   const Post = await Post.findById({_id : id})
-//   return Post
+// export const findOneOrder = async(id) =>{
+//   const Order = await Order.findById({_id : id})
+//   return Order
 // }
 
-export const findPostByName = async (query) => {
-  const post = await Post.findOne(query).populate("user", "-password");
-  return post;
+export const findOrderByName = async (query) => {
+  const order = await Order.findOne(query).populate("user", "-password");
+  return order;
 };
 
-export const updatePost = async (id, postObj) => {
-  const post = await Post.findByIdAndUpdate(
+export const updateOrder = async (id, OrderObj) => {
+  const order = await Order.findByIdAndUpdate(
     { _id: id },
-    { $set: postObj },
+    { $set: OrderObj },
     { new: true }
   );
-  return post;
+  return order;
 };
 
-export const deletePost = async (id, userId) => {
-  const post = await Post.findByIdAndUpdate(
+export const deleteOrder = async (id, userId) => {
+  const order = await Order.findByIdAndUpdate(
     { _id: id, user: userId },
     { $set: { status: "inactive" } },
     { new: true }
   );
-  return post;
+  return order;
 };
 
-export const findPostOwnerById = async (id) => {
-  const post = await Post.find({ status: "active", vendor: id }).populate(
+export const findOrderOwnerById = async (id) => {
+  const order = await Order.find({ status: "active", user: id }).populate(
     "user",
     "-password"
   );
-  return post;
+  return order;
 };
