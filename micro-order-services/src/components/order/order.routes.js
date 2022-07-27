@@ -1,4 +1,5 @@
 import express from "express";
+import { protectedAuth } from "../../../../authenticationMiddleWare.js";
 // import upload from "../../utils/multer.js"
 
 const orderRouter = express.Router();
@@ -11,7 +12,7 @@ import {
   updateAnOrder,
 } from "./order.controller.js";
 
-orderRouter.post("/create", addOrder);
+orderRouter.post("/create", protectedAuth, addOrder);
 orderRouter.get("/fetch-all", getAllOrders);
 orderRouter.get("/fetch-one/:id", getOneOrder);
 orderRouter.put(

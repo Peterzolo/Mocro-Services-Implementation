@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 
 
@@ -11,7 +11,7 @@ export const  isAuthenticated = (req, res, next) =>{
         if (err) {
             return res.json({ message: err });
         } else {
-            req.user = user;
+            req.user = user;   
             next();
         }
     });

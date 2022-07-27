@@ -1,4 +1,4 @@
-import mongoose from "mongoose"; 
+import mongoose from "mongoose";
 import {
   deleteProduct,
   fetchAllProducts,
@@ -10,22 +10,15 @@ import ApiError from "../../error/ApiError.js";
 
 import { createProduct } from "./product.service.js";
 import cloudinary from "../../utils/cloudinary.js";
-
+import Product from "./product.model.js";
 
 
 export const addProduct = async (req, res) => {
   try {
-    const {
-      description,
-      price,
-      name,
-      image,
-      status,
-    } = req.body;
+    const { description, price, name, image, status } = req.body;
     const userId = req.user;
-    const findUser = userId;
-    // if (user === findUser._id.toString() || findUser.isAdmin === true) {
-    // const result = await cloudinary.uploader.upload(req.file.path);
+    const email = userId.email;
+    console.log('USER ID',email)
     const dataObject = {
       description,
       price,
@@ -39,12 +32,30 @@ export const addProduct = async (req, res) => {
       message: "product successfully created",
       result: productData,
     });
-    // } else {
-    //   res.send({ message: "You are not authorized" });
-    // }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+export const productPurchase = async (req, res) => {
+  const { ids } = req.body;
+  const userId = req.user;
+  console.log('USER ID',userId)
+  const findUser = userId;
+  const products = await Product.find({ _id: { $in: ids } });
+  channel.sendToQueue(
+    "ORDER",
+    Buffer.from(
+      JSON.stringify({
+        products,
+        userEmail: req.user.email,
+      })
+    )
+  );
+  channel.consume("PRODUCT", (data) => {
+    order = JSON.parse(data.content);
+  });
+  return res.json(order);
 };
 
 export const getAllProducts = async (req, res) => {
@@ -141,8 +152,6 @@ export const removeProduct = async (req, res) => {
       return res.status(404).json({ message: "User doesn't exist" });
     }
     const findProduct = await findProductById(id);
-
-
 
     if (findProduct.user._id.toString() === userId._id) {
       if (findProduct.status === "inactive") {

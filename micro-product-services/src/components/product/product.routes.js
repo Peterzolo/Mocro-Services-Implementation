@@ -1,4 +1,5 @@
 import express from "express";
+import { protectedAuth } from "../../../../authenticationMiddleWare.js";
 
 
 const productRouter = express.Router();
@@ -11,19 +12,17 @@ import {
   searchProductByTitle,
   updateAProduct,
 } from "./product.controller.js";
-import { authorizedAndAdmin, protect } from "../../middleware/auth2.js";
 
 
-productRouter.post("/create", addProduct);
+
+productRouter.post("/create",protectedAuth,addProduct);
 productRouter.get("/fetch-all", getAllProducts);
 productRouter.get("/fetch-one/:id", getOneProduct);
 productRouter.put(
   "/edit/:id",
-
-  authorizedAndAdmin,
   updateAProduct
 );
-productRouter.delete("/remove/:id", authorizedAndAdmin, removeProduct);
+productRouter.delete("/remove/:id",removeProduct);
 productRouter.get("/search", searchProductByTitle);
 
 
