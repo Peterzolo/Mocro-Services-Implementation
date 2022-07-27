@@ -1,4 +1,4 @@
-import { findPostById, findPostByName, savePostPayload } from "./post.dao.js";
+import { findPostById, findPostByName, savePostPayload } from "./order.dao.js";
 import ApiError from "../../error/ApiError.js";
 
 export const createPost = async ({

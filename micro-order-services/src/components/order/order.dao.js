@@ -1,4 +1,4 @@
-import Post from "./post.model.js";
+import Post from "./order.model.js";
 
 export const savePostPayload = async (args) => {
   const payload = await Post.create(args);

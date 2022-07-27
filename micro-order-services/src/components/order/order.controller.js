@@ -5,10 +5,10 @@ import {
   findPostById,
   findPostOwnerById,
   updatePost,
-} from "./post.dao.js";
+} from "./order.dao.js";
 import ApiError from "../../error/ApiError.js";
 
-import { createPost } from "./post.service.js";
+import { createPost } from "./order.service.js";
 import cloudinary from "../../utils/cloudinary.js";
 import { findUserById } from "../user/user.dao.js";
 import User from "../user/user.model.js";
