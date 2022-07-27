@@ -11,13 +11,11 @@ const PostSchema = mongoose.Schema(
       },
     ],
 
-    user: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "user",
-        required: true,
-      },
-    ],
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
 
     total_price: {
       type: Number,

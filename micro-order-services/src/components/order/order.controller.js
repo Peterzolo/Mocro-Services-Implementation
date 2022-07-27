@@ -1,26 +1,21 @@
+
 import mongoose from "mongoose";
 import {
-  deletePost,
-  fetchAllPosts,
-  findPostById,
-  findPostOwnerById,
-  updatePost,
+  deleteOrder,
+  fetchAllOrders,
+  findOrderById,
+  findOrderOwnerById,
+  updateOrder,
 } from "./order.dao.js";
 import ApiError from "../../error/ApiError.js";
+import { createOrder } from "./order.service.js";
 
-import { createPost } from "./order.service.js";
-import cloudinary from "../../utils/cloudinary.js";
-import { findUserById } from "../user/user.dao.js";
-import User from "../user/user.model.js";
-
-export const sendPost = async (req, res) => {
+export const addOrder = async (req, res) => {
   try {
     const {
-      description,
-      likes,
+      products,
       user,
-      image,
-      createdAt,
+      total_price,
       status,
     } = req.body;
     const userId = req.user;
@@ -28,19 +23,16 @@ export const sendPost = async (req, res) => {
     // if (user === findUser._id.toString() || findUser.isAdmin === true) {
     // const result = await cloudinary.uploader.upload(req.file.path);
     const dataObject = {
-      image,
-      description,
-      likes,
+      products,
       user,
-      createdAt,
+      total_price,
       status,
-      createdAt: new Date().toString(),
     };
-    const postData = await createPost(dataObject);
+    const orderData = await createOrder(dataObject);
     res.status(200).json({
       success: true,
-      message: "Post successfully created",
-      result: postData,
+      message: "order successfully created",
+      result: orderData,
     });
     // } else {
     //   res.send({ message: "You are not authorized" });
@@ -50,82 +42,82 @@ export const sendPost = async (req, res) => {
   }
 };
 
-export const getAllPosts = async (req, res) => {
+export const getAllOrders = async (req, res) => {
   try {
-    const allPosts = await fetchAllPosts();
-    if (!allPosts.length) {
-      throw ApiError.notFound("No post Found");
+    const allOrders = await fetchAllOrders();
+    if (!allOrders.length) {
+      throw ApiError.notFound("No order Found");
     }
     res.status(200).json({
-      postCount: allPosts.length,
+      orderCount: allOrders.length,
       success: true,
-      message: "Successfully fetched all posts",
-      result: allPosts,
+      message: "Successfully fetched all orders",
+      result: allOrders,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const getOnePost = async (req, res) => {
+export const getOneOrder = async (req, res) => {
   try {
     const id = req.params.id;
-    const findPost = await findPostById(id);
-    if (findPost) {
-      const post = findPost;
+    const findOrder = await findOrderById(id);
+    if (findOrder) {
+      const order = findOrder;
       res.status(200).send({
         Success: true,
-        message: "post successfully fetched",
-        result: post,
+        message: "order successfully fetched",
+        result: order,
       });
     } else {
-      res.status(401).send({ message: "Post Not Found" });
+      res.status(401).send({ message: "order Not Found" });
     }
   } catch (error) {
     res.status(400).send({ message: "Error has occured" });
   }
 };
 
-export const updateAPost = async (req, res) => {
+export const updateAnOrder = async (req, res) => {
   try {
     const { id } = req.params;
     const user = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ message: "Invalid Post  id" });
+      return res.status(404).json({ message: "Invalid order  id" });
     }
 
-    const post = await findPostById(id);
+    const order = await findOrderById(id);
 
-    if (post.user._id.toString() === user._id || user.isAdmin === true) {
-      if (post.status === "inactive") {
-        throw ApiError.notFound({ message: "Post not found" });
+    if (order.user._id.toString() === user._id || user.isAdmin === true) {
+      if (order.status === "inactive") {
+        throw ApiError.notFound({ message: "order not found" });
       }
 
       // Delete image from cloudinary
-      await cloudinary.uploader.destroy(post.cloudinary_id);
+      await cloudinary.uploader.destroy(order.cloudinary_id);
       // Upload image to cloudinary
       let result;
       if (req.file) {
         result = await cloudinary.uploader.upload(req.file.path);
       }
       const data = {
-        title: req.body.title || post.title,
-        description: req.body.description || post.description,
-        title: req.body.title || post.title,
-        image: result?.secure_url || post.image,
-        // user: post.user,
-        cloudinary_id: result?.public_id || post.cloudinary_id,
+        title: req.body.title || order.title,
+        description: req.body.description || order.description,
+        title: req.body.title || order.title,
+        image: result?.secure_url || order.image,
+        // user: order.user,
+        cloudinary_id: result?.public_id || order.cloudinary_id,
       };
 
-      let editedPost = await updatePost(id, data);
+      let editedorder = await updateorder(id, data);
 
-      if (!editedPost) {
-        throw ApiError.notFound({ message: "post not available" });
+      if (!editedorder) {
+        throw ApiError.notFound({ message: "order not available" });
       }
       return res.status(200).send({
-        message: "post updated successfully",
-        content: editedPost,
+        message: "order updated successfully",
+        content: editedorder,
         success: true,
       });
     } else {
@@ -136,7 +128,7 @@ export const updateAPost = async (req, res) => {
   }
 };
 
-export const removePost = async (req, res) => {
+export const removeOrder = async (req, res) => {
   try {
     const id = req.params.id;
     const userId = req.user;
@@ -144,28 +136,28 @@ export const removePost = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ message: "User doesn't exist" });
     }
-    const findPost = await findPostById(id);
+    const findorder = await findorderById(id);
 
     console.log("UserId", typeof userId._id);
-    console.log("Find Post", typeof findPost.user._id);
+    console.log("Find order", typeof findorder.user._id);
 
-    if (findPost.user._id.toString() === userId._id) {
-      if (findPost.status === "inactive") {
-        throw ApiError.notFound({ message: "post not available" });
+    if (findorder.user._id.toString() === userId._id) {
+      if (findorder.status === "inactive") {
+        throw ApiError.notFound({ message: "order not available" });
       }
-      await cloudinary.uploader.destroy(findPost.cloudinary_id);
+      await cloudinary.uploader.destroy(findorder.cloudinary_id);
 
       const query = id;
 
-      let deletedPost = await deletePost(query);
+      let deletedorder = await deleteorder(query);
 
-      if (!deletedPost) {
-        throw ApiError.notFound({ message: "Could not delete post" });
+      if (!deletedorder) {
+        throw ApiError.notFound({ message: "Could not delete order" });
       }
       return res.status(200).send({
         success: true,
-        message: "post deleted successfully",
-        result: deletedPost,
+        message: "order deleted successfully",
+        result: deletedorder,
       });
     } else {
       res.status(403).send({ message: "Not allowed" });
@@ -175,77 +167,77 @@ export const removePost = async (req, res) => {
   }
 };
 
-export const findPostByVendor = async (req, res) => {
+export const findorderByVendor = async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ message: "User doesn't exist" });
     }
-    const userPost = await findPostOwnerById(id);
-    if (userPost.length < 1) {
-      throw ApiError.notFound({ message: "post could not be found" });
+    const userorder = await findorderOwnerById(id);
+    if (userorder.length < 1) {
+      throw ApiError.notFound({ message: "order could not be found" });
     }
     res.status(200).json({
       Success: true,
-      Message: "post successfully fetched",
-      data: userPost,
+      Message: "order successfully fetched",
+      data: userorder,
     });
   } catch (error) {
     res.status(500).json(error.message);
   }
 };
 
-// export const searchpostByTitle = async (req, res) => {
+// export const searchorderByTitle = async (req, res) => {
 //   try {
 //     const { searchQuery } = req.query;
 //     const title = new RegExp(searchQuery, "i");
-//     const posts = await fetchAllposts({ title });
-//     res.status(200).json(posts);
+//     const orders = await fetchAllorders({ title });
+//     res.status(200).json(orders);
 //   } catch (error) {
 //     res.status(500).json(error.message);
 //   }
 // };
 
-export const searchPostByTitle = async (req, res) => {
+export const searchorderByTitle = async (req, res) => {
   const { searchQuery } = req.query;
   try {
     const title = new RegExp(searchQuery, "i");
-    const posts = await getAllPosts({ title });
-    res.json(posts);
+    const orders = await getAllorders({ title });
+    res.json(orders);
   } catch (error) {
     res.status(404).json({ message: "Something went wrong" });
   }
 };
 
-// export const getPostsByTag = async (req, res) => {
+// export const getordersByTag = async (req, res) => {
 //   const { tag } = req.params;
 //   try {
-//     const posts = await getAllPosts({ tags: { $in: tag } });
+//     const orders = await getAllorders({ tags: { $in: tag } });
 //     res.json({
 //       success: true,
 //       message: "Successful",
-//       data: posts,
+//       data: orders,
 //     });
 //   } catch (error) {
 //     res.status(404).json({ message: "Something went wrong" });
 //   }
 // };
 
-// export const getRelatedPosts = async (req, res) => {
+// export const getRelatedorders = async (req, res) => {
 //   const tag = req.body;
 //   try {
-//     const posts = await getAllPosts({ tags: { $in: tag } });
+//     const orders = await getAllorders({ tags: { $in: tag } });
 //     res.json({
 //       success: true,
 //       message: "Successful",
-//       data: posts,
+//       data: orders,
 //     });
 //   } catch (error) {
 //     res.status(404).json({ message: "Something went wrong" });
 //   }
 // };
 
-// export const getPostLikes = async (req, res) => {
+// export const getorderLikes = async (req, res) => {
 //   const { id } = req.params;
 //   try {
 //     if (!req.userId) {
@@ -253,58 +245,58 @@ export const searchPostByTitle = async (req, res) => {
 //     }
 
 //     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return res.status(404).json({ message: `No post exist with id: ${id}` });
+//       return res.status(404).json({ message: `No order exist with id: ${id}` });
 //     }
 
-//     const post = await findPostById(id);
+//     const order = await findorderById(id);
 
-//     const index = post.likes.findIndex((id) => id === String(req.userId));
+//     const index = order.likes.findIndex((id) => id === String(req.userId));
 
 //     if (index === -1) {
-//       post.likes.push(req.userId);
+//       order.likes.push(req.userId);
 //     } else {
-//       post.likes = post.likes.filter((id) => id !== String(req.userId));
+//       order.likes = order.likes.filter((id) => id !== String(req.userId));
 //     }
 
-//     const updatedpost = await updatePost(id, post, {
+//     const updatedorder = await updateorder(id, order, {
 //       new: true,
 //     });
 
 //     res.status(200).json({
 //       success: true,
 //       message: "Successfully liked",
-//       data: updatedpost,
+//       data: updatedorder,
 //     });
 //   } catch (error) {
 //     res.status(404).json({ message: error.message });
 //   }
 // };
 
-export const likePost = async (req, res) => {
+export const likeorder = async (req, res) => {
   const id = req.params.id;
   const { userId } = req.body;
 
   try {
-    const post = await findPostById(id);
-    if (post.likes.includes(userId)) {
-      await post.updateOne({ $pull: { likes: userId } });
-      res.status(200).json({ message: "Post disliked" });
+    const order = await findorderById(id);
+    if (order.likes.includes(userId)) {
+      await order.updateOne({ $pull: { likes: userId } });
+      res.status(200).json({ message: "order disliked" });
     } else {
-      await post.updateOne({ $push: { likes: userId } });
-      res.status(200).json({ message: "Post liked" });
+      await order.updateOne({ $push: { likes: userId } });
+      res.status(200).json({ message: "order liked" });
     }
   } catch (error) {
     res.status(500).json(error);
   }
 };
 
-export const getTimelinePosts = async (req, res) => {
+export const getTimelineorders = async (req, res) => {
   const userId = req.params.id;
   try {
-    const currentUserPosts = await fetchAllPosts({ user: userId });
-    console.log("CURRENT POST", currentUserPosts);
+    const currentUserorders = await fetchAllorders({ user: userId });
+    console.log("CURRENT order", currentUserorders);
 
-    const followingPosts = await User.aggregate([
+    const followingorders = await User.aggregate([
       {
         $match: {
           _id: new mongoose.Types.ObjectId(userId),
@@ -312,29 +304,29 @@ export const getTimelinePosts = async (req, res) => {
       },
       {
         $lookup: {
-          from: "posts",
+          from: "orders",
           localField: "following",
           foreignField: "userId",
-          as: "followingPosts",
+          as: "followingorders",
         },
       },
       {
         $project: {
-          followingPosts: 1,
+          followingorders: 1,
           _id: 0,
         },
       },
     ]);
 
-    const timeLinePosts = currentUserPosts
-      .concat(...followingPosts[0].followingPosts)
+    const timeLineorders = currentUserorders
+      .concat(...followingorders[0].followingorders)
       .sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
     res.status(200).json({
       success: true,
-      message: "Posts successfully fetched",
-      result: timeLinePosts,
+      message: "orders successfully fetched",
+      result: timeLineorders,
     });
   } catch (error) {
     res.status(500).json(error);
