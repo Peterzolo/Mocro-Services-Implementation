@@ -33,7 +33,6 @@ export const createProduct = async ({
 
   const product = await saveProductPayload(productObject);
   return {
-
     image: product.image,
     price: product.price,
     name: product.name,
@@ -43,3 +42,4 @@ export const createProduct = async ({
     _id: product._id,
   };
 };
+
