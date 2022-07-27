@@ -1,16 +1,15 @@
-
 import mongoose from "mongoose";
 import {
   deleteOrder,
   fetchAllOrders,
   findOrderById,
   findOrderOwnerById,
+  saveOrderPayload,
   updateOrder,
 } from "./order.dao.js";
 import ApiError from "../../error/ApiError.js";
 import amqp from "amqplib";
 import Order from "./order.model.js";
-
 
 let connection;
 let channel;
@@ -39,26 +38,26 @@ let channel;
 //       message: "order successfully created",
 //       result: orderData,
 //     });
-  
+
 //   } catch (error) {
 //     res.status(500).json({ message: error.message });
 //   }
 // };
 
-
-export const createOrder = (products, userEmail)=> {
+export const createOrder = (products, userEmail) => {
   let total = 0;
   for (let t = 0; t < products.length; ++t) {
-      total += products[t].price;   
+    total += products[t].price;
   }
+  
   const newOrder = new Order({
-      products,
-      user: userEmail,
-      total_price: total,
+    products,
+    user: userEmail,
+    total_price: total,
   });
   newOrder.save();
   return newOrder;
-}
+};
 
 async function connect() {
   const amqpServer = "amqp://localhost:5672";
@@ -68,18 +67,13 @@ async function connect() {
 }
 connect().then(() => {
   channel.consume("ORDER", (data) => {
-      console.log("Consuming ORDER service");
-      const { products, userEmail } = JSON.parse(data.content);
-      const newOrder = createOrder(products, userEmail);
-      channel.ack(data);
-      channel.sendToQueue(
-          "PRODUCT",
-          Buffer.from(JSON.stringify({ newOrder }))
-      );
+    console.log("Consuming ORDER service");
+    const { products, userEmail } = JSON.parse(data.content);
+    const newOrder = createOrder(products, userEmail);
+    channel.ack(data);
+    channel.sendToQueue("PRODUCT", Buffer.from(JSON.stringify({ newOrder })));
   });
 });
-
-
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -117,8 +111,6 @@ export const getOneOrder = async (req, res) => {
   }
 };
 
-
-
 export const removeOrder = async (req, res) => {
   try {
     const id = req.params.id;
@@ -154,4 +146,3 @@ export const removeOrder = async (req, res) => {
     res.status(400).json(error.message);
   }
 };
-

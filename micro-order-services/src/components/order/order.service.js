@@ -4,7 +4,7 @@
 import { findOrderById, findOrderByName, saveOrderPayload } from "./order.dao.js";
 import ApiError from "../../error/ApiError.js";
 
-export const createOrder = async ({
+export const createOrderService = async ({
   products,
   user,
   total_price,
@@ -29,7 +29,7 @@ export const createOrder = async ({
   return {
     products: order.products,
     user: order.user,
-    description: order.description,
+    total_price : order.total_price,
     status: order.status,
   };
 };

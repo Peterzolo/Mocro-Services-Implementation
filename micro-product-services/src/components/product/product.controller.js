@@ -48,29 +48,32 @@ async function connect() {
 connect();
 
 export const productPurchase = async (req, res) => {
-  const { ids } = req.body;
-  const userId = req.user;
-  const email = userId.email;
-  const products = await Product.find({ _id: { $in: ids } });
-  channel.sendToQueue(
-    "ORDER",
-    Buffer.from(
-      JSON.stringify({
-        products,
-        // userEmail: req.user.email,
-        userEmail: email,
-      })
-    )
-  );
-  channel.consume("PRODUCT", (data) => {
-    order = JSON.parse(data.content);
-    console.log('DATA',data)
-  });
-  return res.json({
-    success: true,
-    message: "Order successfully created",
-    result: order,
-  });
+  try {
+    const { ids } = req.body;
+    const userId = req.user;
+    const email = userId.email;
+    // const products = await Product.find({ _id: { $in: ids } });
+    const products = await fetchAllProducts({ _id: { $in: ids } });
+    channel.sendToQueue(
+      "ORDER",
+      Buffer.from(
+        JSON.stringify({
+          products,
+          userEmail: email,
+        })
+      )
+    );
+    channel.consume("PRODUCT", (data) => {
+      order = JSON.parse(data.content);
+    });
+    return res.json({
+      success: true,
+      message: "Order successfully created",
+      result: order,
+    });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 };
 
 export const getAllProducts = async (req, res) => {
